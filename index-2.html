@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RING KING — Jason's Liu Yang Program</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #D92B2B;
+    --gold: #C9A84C;
+    --dark: #0A0A0A;
+    --surface: #111111;
+    --surface2: #1A1A1A;
+    --border: #222222;
+    --text: #E8E8E8;
+    --muted: #666666;
+    --white: #FFFFFF;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--dark);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* HERO */
+  .hero {
+    position: relative;
+    padding: 60px 32px 48px;
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(217,43,43,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--red);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(52px, 12vw, 96px);
+    line-height: 0.9;
+    letter-spacing: 2px;
+    color: var(--white);
+    margin-bottom: 8px;
+  }
+  .hero-title span { color: var(--red); }
+  .hero-sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    margin-bottom: 32px;
+  }
+
+  /* STATS BAR */
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 0;
+  }
+  .stat-item {
+    background: var(--surface);
+    padding: 16px 20px;
+    text-align: center;
+  }
+  .stat-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    color: var(--gold);
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* NAV TABS */
+  .tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    overflow-x: auto;
+  }
+  .tab {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 20px 24px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+  }
+  .tab.active {
+    color: var(--white);
+    border-bottom-color: var(--red);
+  }
+  .tab:hover:not(.active) { color: var(--text); }
+
+  /* PANELS */
+  .panel { display: none; padding: 32px; }
+  .panel.active { display: block; }
+
+  /* SECTION HEADER */
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    letter-spacing: 2px;
+    color: var(--white);
+  }
+  .section-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--red);
+    background: rgba(217,43,43,0.1);
+    padding: 4px 10px;
+    border-radius: 4px;
+    border: 1px solid rgba(217,43,43,0.3);
+    text-transform: uppercase;
+  }
+
+  /* DAY CARD */
+  .day-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .day-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .day-card:hover { border-color: #333; }
+  .day-card-header {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .day-number {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 13px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+  .day-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 1px;
+    color: var(--white);
+    margin-top: 2px;
+  }
+  .day-focus {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .day-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    text-transform: uppercase;
+  }
+  .tag-push { background: rgba(217,43,43,0.15); color: var(--red); border: 1px solid rgba(217,43,43,0.3); }
+  .tag-pull { background: rgba(201,168,76,0.12); color: var(--gold); border: 1px solid rgba(201,168,76,0.3); }
+  .tag-legs { background: rgba(255,255,255,0.05); color: #999; border: 1px solid #333; }
+  .tag-rest { background: rgba(100,200,100,0.1); color: #6BCB77; border: 1px solid rgba(107,203,119,0.3); }
+
+  .exercise-list { padding: 8px 0; }
+  .exercise-item {
+    padding: 14px 24px;
+    border-bottom: 1px solid #161616;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .exercise-item:last-child { border-bottom: none; }
+  .exercise-item:hover { background: rgba(255,255,255,0.03); }
+  .ex-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--red);
+    min-width: 20px;
+  }
+  .ex-info { flex: 1; }
+  .ex-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+  .ex-note {
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .ex-scheme {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--gold);
+    white-space: nowrap;
+  }
+  .ex-target {
+    font-size: 10px;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    white-space: nowrap;
+  }
+
+  /* WEEKLY SCHEDULE */
+  .week-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    margin-bottom: 32px;
+  }
+  .week-day {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 12px;
+    text-align: center;
+  }
+  .week-day-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .week-day-type {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 15px;
+    letter-spacing: 1px;
+    line-height: 1.2;
+  }
+  .type-gym { color: var(--red); }
+  .type-ball { color: var(--gold); }
+  .type-rest { color: #444; }
+
+  /* PROGRESSION */
+  .prog-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .prog-table th {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: left;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+  .prog-table td {
+    padding: 14px 20px;
+    border-bottom: 1px solid #151515;
+    color: var(--text);
+    vertical-align: top;
+  }
+  .prog-table tr:last-child td { border-bottom: none; }
+  .prog-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .prog-phase {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px;
+    letter-spacing: 1px;
+    color: var(--white);
+  }
+  .prog-week {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--red);
+    margin-top: 2px;
+  }
+
+  /* NUTRITION */
+  .nutrition-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .nut-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+  }
+  .nut-icon { font-size: 24px; margin-bottom: 12px; }
+  .nut-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    color: var(--gold);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .nut-label {
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .nut-note {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--red);
+    margin-top: 8px;
+  }
+
+  /* INSIGHT BOX */
+  .insight-box {
+    background: linear-gradient(135deg, rgba(217,43,43,0.08) 0%, rgba(201,168,76,0.05) 100%);
+    border: 1px solid rgba(217,43,43,0.2);
+    border-left: 3px solid var(--red);
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+  }
+  .insight-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--red);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .insight-text {
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  /* WARNING BOX */
+  .warning-box {
+    background: rgba(255,200,0,0.05);
+    border: 1px solid rgba(255,200,0,0.2);
+    border-left: 3px solid #FFAA00;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    color: #CCC;
+    line-height: 1.6;
+  }
+  .warning-box strong { color: #FFAA00; }
+
+  /* GAP ANALYSIS */
+  .gap-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .gap-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 24px;
+  }
+  .gap-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .gap-green { color: #6BCB77; border-left: 3px solid #6BCB77; }
+  .gap-red { color: var(--red); border-left: 3px solid var(--red); }
+  .gap-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    font-size: 13px;
+    color: var(--text);
+  }
+  .gap-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .dot-green { background: #6BCB77; }
+  .dot-red { background: var(--red); }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: var(--dark); }
+  ::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+
+  @media (max-width: 600px) {
+    .hero { padding: 40px 20px 32px; }
+    .tabs { padding: 0 16px; }
+    .panel { padding: 20px 16px; }
+    .stats-bar { grid-template-columns: repeat(2, 1fr); }
+    .gap-grid { grid-template-columns: 1fr; }
+    .week-grid { grid-template-columns: repeat(4, 1fr); }
+    .prog-table { font-size: 12px; }
+    .prog-table th, .prog-table td { padding: 10px 12px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-label">Jason — Liu Yang Physique Program</div>
+  <div class="hero-title">RING<br><span>KING</span></div>
+  <div class="hero-sub">No rings. No problem. — Build gymnast density with gym equipment.</div>
+  <div class="stats-bar">
+    <div class="stat-item">
+      <div class="stat-val">180</div>
+      <div class="stat-label">CM Height</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-val">81.5</div>
+      <div class="stat-label">KG Weight</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-val">11.8%</div>
+      <div class="stat-label">Body Fat</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-val">71.8</div>
+      <div class="stat-label">KG Lean Mass</div>
+    </div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('overview')">Overview</button>
+  <button class="tab" onclick="switchTab('program')">Program</button>
+  <button class="tab" onclick="switchTab('schedule')">Schedule</button>
+  <button class="tab" onclick="switchTab('progression')">Progression</button>
+  <button class="tab" onclick="switchTab('nutrition')">Nutrition</button>
+</div>
+
+<!-- OVERVIEW PANEL -->
+<div id="panel-overview" class="panel active">
+  <div class="section-header">
+    <div class="section-title">Gap Analysis</div>
+    <div class="section-badge">vs Liu Yang Physique</div>
+  </div>
+
+  <div class="gap-grid">
+    <div class="gap-card gap-green">
+      <div class="gap-title">✅ Sudah Solid</div>
+      <div class="gap-item"><div class="gap-dot dot-green"></div>Body fat 11.8% — tidak perlu cutting</div>
+      <div class="gap-item"><div class="gap-dot dot-green"></div>Shoulder press 100 kg — kekuatan pressing luar biasa</div>
+      <div class="gap-item"><div class="gap-dot dot-green"></div>Pull-ups 11 reps — pulling base ada</div>
+      <div class="gap-item"><div class="gap-dot dot-green"></div>Dips 20 reps — tricep & chest foundation kuat</div>
+      <div class="gap-item"><div class="gap-dot dot-green"></div>Lean mass 71.8 kg — frame besar, tinggal dense-in</div>
+    </div>
+    <div class="gap-card gap-red">
+      <div class="gap-title">🎯 Yang Perlu Dibangun</div>
+      <div class="gap-item"><div class="gap-dot dot-red"></div>Chest thickness — kurang 3D, perlu upper chest emphasis</div>
+      <div class="gap-item"><div class="gap-dot dot-red"></div>Ring-style pulling strength — rows, face pulls, rear delt</div>
+      <div class="gap-item"><div class="gap-dot dot-red"></div>Shoulder width — lateral head perlu lebih tebal</div>
+      <div class="gap-item"><div class="gap-dot dot-red"></div>Bicep peak density — curl 15 kg bisa di-progress ke 20+ kg</div>
+      <div class="gap-item"><div class="gap-dot dot-red"></div>Nutrition structure — tanpa protein tracking, growth terhambat</div>
+    </div>
+  </div>
+
+  <div class="insight-box">
+    <div class="insight-label">⚡ Core Strategy</div>
+    <div class="insight-text">
+      Liu Yang physique = <strong>dense upper body dari ring work</strong>. Karena kamu tidak punya rings, kita simulasi dengan Cable, Weighted Dips, Chest-Supported Row, dan Lateral Raise variations. Tujuan utama: <strong>tambah 4–6 kg lean mass di upper body</strong> dalam 6 bulan tanpa merusak abdominal wall.
+    </div>
+  </div>
+
+  <div class="warning-box">
+    <strong>⚠️ Abdominal Wall Protocol</strong> — Core bracing max 70%. Setiap ada rasa tidak nyaman di lower ab → stop langsung. Heavy barbell squat & conventional deadlift tetap dilarang. Trap bar deadlift & goblet squat adalah substitusi yang aman.
+  </div>
+
+  <div class="insight-box">
+    <div class="insight-label">🎯 Target 6 Bulan</div>
+    <div class="insight-text">
+      <strong>Berat:</strong> 84–86 kg (lean bulk +3–4 kg) &nbsp;|&nbsp;
+      <strong>Pull-ups:</strong> 16–18 reps &nbsp;|&nbsp;
+      <strong>Weighted Dips:</strong> +20–30 kg × 10 reps &nbsp;|&nbsp;
+      <strong>Shoulder Press:</strong> 120 kg × 6 reps
+    </div>
+  </div>
+</div>
+
+<!-- PROGRAM PANEL -->
+<div id="panel-program" class="panel">
+  <div class="section-header">
+    <div class="section-title">3-Day Gym Program</div>
+    <div class="section-badge">Push · Pull · Legs</div>
+  </div>
+
+  <div class="insight-box">
+    <div class="insight-label">📌 Prinsip Program</div>
+    <div class="insight-text">
+      Setiap sesi dirancang 45–60 menit. Prioritas: <strong>compound heavy dulu</strong>, isolation setelahnya. Rest antar set 90–120 detik untuk compound, 60 detik untuk isolation.
+    </div>
+  </div>
+
+  <div class="day-grid">
+
+    <!-- DAY A: PUSH -->
+    <div class="day-card">
+      <div class="day-card-header">
+        <div>
+          <div class="day-number">Day A</div>
+          <div class="day-name">PUSH</div>
+          <div class="day-focus">Chest · Shoulder · Tricep</div>
+        </div>
+        <div class="day-tag tag-push">Push</div>
+      </div>
+      <div class="exercise-list">
+        <div class="exercise-item">
+          <div class="ex-num">01</div>
+          <div class="ex-info">
+            <div class="ex-name">Incline DB Press</div>
+            <div class="ex-note">Upper chest priority — 30–45° incline</div>
+          </div>
+          <div>
+            <div class="ex-scheme">4 × 8</div>
+            <div class="ex-target">Heavy</div>
+          </div>
+        </div>
+        <div class="exercise-item">
+          <div class="ex-num">02</div>
+          <div class="ex-info">
+            <div class="ex-name">Weighted Dips</div>
+            <div class="ex-note">Forward lean → chest bias, simulates ring dip</div>
+          </div>
+          <div>
+            <div class="ex-scheme">4 × 6</div>
+            <div class="ex-target">+10–20 kg</div>
+          </div>
+        </div>
+        <div class="exercise-item">
+          <div class="ex-num">03</div>
+          <div class="ex-info">
+            <div class="ex-name">Machine Shoulder Press</div>
+            <div class="ex-note">Already strong — progressive overload terus</div>
+          </div>
+          <div>
+            <div class="ex-scheme">4 × 6</div>
+            <div class="ex-target">100 kg+</div>
+          </div>
+        </div>
+        <div class="exercise-item">
+          <div class="ex-num">04</div>
+          <div class="ex-info">
+            <div class="ex-name">Cable Lateral Raise</div>
+            <div class="ex-note">Lateral delt — shoulder width & 3D look</div>
+          </div>
+          <div>
+            <div class="ex-scheme">3 × 15</div>
+            <div class="ex-target">Slow eccentric</div>
+          </div>
+        </div>
+        <div class="exercise-item">
+          <div class="ex-num">05</div>
+          <div class="ex-info">
+            <div class="ex-name">Cable Crossover (Low)</div>
+            <div class="ex-note">Upper chest peak contraction, ring fly substitute</div>
+          </div>
+          <div>
+            <div class="ex-scheme">3 × 12</div>
+            <div class="ex-target">Mind-muscle</div>
+          </div>
+        </div>
+        <div class="exercise-item">
+          <div class="ex-num">06</div>
+          <div class="ex-info">
+            <div class="ex-name">Overhead Tricep Extension</div>
+            <div class="ex-note">Long head tricep — arm thickness</div>
+          </div>
+          <div>
+            <div class="ex-scheme">3 × 12</div>
+            <div class="ex-target">Cable/DB</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DAY B: PULL -->
+    <div class="day-card">
+      <div class="day-card-header">
+        <div>
+          <div class="day-number">Day B</div>
+          <div class="day-name">PULL</div>
+          <div class="day-focus">Back · Bicep · Rear Delt</div>
+        </div>
+        <div class="day-tag tag-pull">Pull</div>
+      </div>
+      <div class="exercise-list">
+        <div class="exercise-item">
+          <div class="ex-num">01</div>
+          <div class="ex-info">
+            <div class="ex-name">Weighted Pull-ups</div>
+            <div class="ex-note">Core ring skill — tambah beban bertahap</div>
+          </div>
+          <div>
+            <div class="ex-scheme">4 × 6</div>
+            <div class="ex-target">+5–10 kg</div>
+          </div>
+        </div>
+        <div class="exercise-item">
+          <div class="ex-num">02</div>
+          <div class="ex-info">
+            <div class="ex-name">Chest-Supported DB Row</div>
+            <div class="ex-note">Ring row substitute — no spinal loading</div>
+          </div>
+          <div>
+            <div class="ex-scheme">4 × 10</div>
+            <div class="ex-target">Heavy</div>
+          </div>
+        </div>
+        <div class="exercise-item">
+          <div class="ex-num">03</div>
+          <div class="ex-info">
+            <div class="ex-name">Cable Pullover</div>
+            <div class="ex-note">Lat stretch & contraction — gymnast back width</div>
+          </div>
+          <div>
+            <div class="ex-scheme">3 × 12</div>
+            <div class="ex-target">Slow</div>
+          </div>
+        </div>
+        <div class="exercise-item">
+          <div class="ex-num">04</div>
+          <div class="ex-info">
+            <div class="ex-name">Face Pull</div>
+            <div class="ex-note">Rear delt + rotator cuff — shoulder health krusial</div>
+          </div>
+          <div>
+            <div class="ex-scheme">4 × 15</div>
+            <div class="ex-target">Light, controlled</div>
+          </div>
+        </div>
+        <div class="exercise-item">
+          <div class="ex-num">05</div>
+          <div class="ex-info">
+            <div class="ex-name">Incline DB Curl</div>
+            <div class="ex-note">Bicep peak & long head — gymnast arm density</div>
+          </div>
+          <div>
+            <div class="ex-scheme">3 × 10</div>
+            <div class="ex-target">15–20 kg</div>
+          </div>
+        </div>
+        <div class="exercise-item">
+          <div class="ex-num">06</div>
+          <div class="ex-info">
+            <div class="ex-name">Hammer Curl</div>
+            <div class="ex-note">Brachialis — arm thickness dari samping</div>
+          </div>
+          <div>
+            <div class="ex-scheme">3 × 12</div>
+            <div class="ex-target">Controlled</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DAY C: LEGS -->
+    <div class="day-card">
+      <div class="day-card-header">
+        <div>
+          <div class="day-number">Day C</div>
+          <div class="day-name">LEGS + CORE</div>
+          <div class="day-focus">Lower Body · Core Light</div>
+        </div>
+        <div class="day-tag tag-legs">Legs</div>
+      </div>
+      <div class="exercise-list">
+        <div class="exercise-item">
+          <div class="ex-num">01</div>
+          <div class="ex-info">
+            <div class="ex-name">Bulgarian Split Squat</div>
+            <div class="ex-note">Sudah solid — progressive overload ke 35–40 kg</div>
+          </div>
+          <div>
+            <div class="ex-scheme">4 × 8</div>
+            <div class="ex-target">30–35 kg</div>
+          </div>
+        </div>
+        <div class="exercise-item">
+          <div class="ex-num">02</div>
+          <div class="ex-info">
+            <div class="ex-name">Trap Bar Deadlift</div>
+            <div class="ex-note">Safe alternative — posterior chain, no ab wall stress</div>
+          </div>
+          <div>
+            <div class="ex-scheme">3 × 6</div>
+            <div class="ex-target">Moderate</div>
+          </div>
+        </div>
+        <div class="exercise-item">
+          <div class="ex-num">03</div>
+          <div class="ex-info">
+            <div class="ex-name">Leg Press</div>
+            <div class="ex-note">Volume tanpa spinal loading</div>
+          </div>
+          <div>
+            <div class="ex-scheme">3 × 12</div>
+            <div class="ex-target">Moderate</div>
+          </div>
+        </div>
+        <div class="exercise-item">
+          <div class="ex-num">04</div>
+          <div class="ex-info">
+            <div class="ex-name">Dead Bug</div>
+            <div class="ex-note">Core activation — aman untuk abdominal wall, 70% brace</div>
+          </div>
+          <div>
+            <div class="ex-scheme">3 × 10</div>
+            <div class="ex-target">Slow, controlled</div>
+          </div>
+        </div>
+        <div class="exercise-item">
+          <div class="ex-num">05</div>
+          <div class="ex-info">
+            <div class="ex-name">Cable Woodchop (Light)</div>
+            <div class="ex-note">Rotational core — stop jika ada ketidaknyamanan</div>
+          </div>
+          <div>
+            <div class="ex-scheme">3 × 12</div>
+            <div class="ex-target">Light</div>
+          </div>
+        </div>
+        <div class="exercise-item">
+          <div class="ex-num">06</div>
+          <div class="ex-info">
+            <div class="ex-name">Calf Raise</div>
+            <div class="ex-note">Gymnast leg detail — standing machine</div>
+          </div>
+          <div>
+            <div class="ex-scheme">4 × 20</div>
+            <div class="ex-target">Full ROM</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- SCHEDULE PANEL -->
+<div id="panel-schedule" class="panel">
+  <div class="section-header">
+    <div class="section-title">Weekly Schedule</div>
+    <div class="section-badge">3 Gym · 1 Ball · 3 Rest/Active</div>
+  </div>
+
+  <div class="week-grid">
+    <div class="week-day">
+      <div class="week-day-label">MON</div>
+      <div class="week-day-type type-gym">DAY A<br>PUSH</div>
+    </div>
+    <div class="week-day">
+      <div class="week-day-label">TUE</div>
+      <div class="week-day-type type-rest">REST<br>Active</div>
+    </div>
+    <div class="week-day">
+      <div class="week-day-label">WED</div>
+      <div class="week-day-type type-gym">DAY B<br>PULL</div>
+    </div>
+    <div class="week-day">
+      <div class="week-day-label">THU</div>
+      <div class="week-day-type type-ball">BOLA<br>BASKET</div>
+    </div>
+    <div class="week-day">
+      <div class="week-day-label">FRI</div>
+      <div class="week-day-type type-gym">DAY C<br>LEGS</div>
+    </div>
+    <div class="week-day">
+      <div class="week-day-label">SAT</div>
+      <div class="week-day-type type-rest">REST<br>/ Walk</div>
+    </div>
+    <div class="week-day">
+      <div class="week-day-label">SUN</div>
+      <div class="week-day-type type-rest">REST<br>Full</div>
+    </div>
+  </div>
+
+  <div class="insight-box">
+    <div class="insight-label">📌 Notes</div>
+    <div class="insight-text">
+      Jadwal ini fleksibel — kalau badan masih sore, geser satu hari. Yang penting urutan Push → Pull → Legs terjaga. Basketball bisa di hari mana saja tapi jangan langsung setelah Legs Day.
+    </div>
+  </div>
+
+  <div class="warning-box">
+    <strong>Lower Back Fatigue = Hard Stop.</strong> Kalau punggung bawah masih sore dari sesi sebelumnya, ganti Legs Day dengan jalan kaki 30 menit atau Upper Body Pump ringan (Lateral Raise + Face Pull + Curl saja).
+  </div>
+</div>
+
+<!-- PROGRESSION PANEL -->
+<div id="panel-progression" class="panel">
+  <div class="section-header">
+    <div class="section-title">12-Week Progression</div>
+    <div class="section-badge">Phase Plan</div>
+  </div>
+
+  <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 24px;">
+    <table class="prog-table">
+      <thead>
+        <tr>
+          <th>Phase</th>
+          <th>Minggu</th>
+          <th>Focus</th>
+          <th>Weighted Pull-ups</th>
+          <th>Weighted Dips</th>
+          <th>Shoulder Press</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <div class="prog-phase">FOUNDATION</div>
+            <div class="prog-week">Phase 1</div>
+          </td>
+          <td style="color: var(--muted); font-family: 'Space Mono', monospace; font-size: 11px;">1–4</td>
+          <td style="font-size: 13px; color: var(--text);">Adapt ke program, establish mind-muscle connection, form sempurna</td>
+          <td style="font-family: 'Space Mono', monospace; font-size: 12px; color: var(--gold);">BW × 8–10</td>
+          <td style="font-family: 'Space Mono', monospace; font-size: 12px; color: var(--gold);">+5 kg × 8</td>
+          <td style="font-family: 'Space Mono', monospace; font-size: 12px; color: var(--gold);">100 kg × 8</td>
+        </tr>
+        <tr>
+          <td>
+            <div class="prog-phase">DENSITY</div>
+            <div class="prog-week">Phase 2</div>
+          </td>
+          <td style="color: var(--muted); font-family: 'Space Mono', monospace; font-size: 11px;">5–8</td>
+          <td style="font-size: 13px; color: var(--text);">Tambah beban, kurangi reps compound. Lean bulk mulai terasa</td>
+          <td style="font-family: 'Space Mono', monospace; font-size: 12px; color: var(--gold);">+5 kg × 6</td>
+          <td style="font-family: 'Space Mono', monospace; font-size: 12px; color: var(--gold);">+15 kg × 6</td>
+          <td style="font-family: 'Space Mono', monospace; font-size: 12px; color: var(--gold);">110 kg × 6</td>
+        </tr>
+        <tr>
+          <td>
+            <div class="prog-phase">PEAK</div>
+            <div class="prog-week">Phase 3</div>
+          </td>
+          <td style="color: var(--muted); font-family: 'Space Mono', monospace; font-size: 11px;">9–12</td>
+          <td style="font-size: 13px; color: var(--text);">Max strength test, estetika mulai terlihat. Berat target 84–85 kg</td>
+          <td style="font-family: 'Space Mono', monospace; font-size: 12px; color: var(--gold);">+10 kg × 6</td>
+          <td style="font-family: 'Space Mono', monospace; font-size: 12px; color: var(--gold);">+20 kg × 6</td>
+          <td style="font-family: 'Space Mono', monospace; font-size: 12px; color: var(--gold);">120 kg × 5</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="insight-box">
+    <div class="insight-label">💡 Aturan Progressive Overload</div>
+    <div class="insight-text">
+      Tambah beban <strong>hanya</strong> kalau reps di set terakhir masih bersih. Kalau form jelek → weight tetap, tambah 1 rep dulu. Compound exercise: naik 2.5–5 kg per minggu. Isolation: naik 1.25–2.5 kg.
+    </div>
+  </div>
+</div>
+
+<!-- NUTRITION PANEL -->
+<div id="panel-nutrition" class="panel">
+  <div class="section-header">
+    <div class="section-title">Lean Bulk Protocol</div>
+    <div class="section-badge">81.5 kg → 85 kg Target</div>
+  </div>
+
+  <div class="nutrition-grid">
+    <div class="nut-card">
+      <div class="nut-icon">🔥</div>
+      <div class="nut-val">2900</div>
+      <div class="nut-label">Kalori harian (gym day)</div>
+      <div class="nut-note">+300 dari maintenance</div>
+    </div>
+    <div class="nut-card">
+      <div class="nut-icon">🥩</div>
+      <div class="nut-val">160g</div>
+      <div class="nut-label">Protein per hari</div>
+      <div class="nut-note">2× lean mass (71.8 kg)</div>
+    </div>
+    <div class="nut-card">
+      <div class="nut-icon">🍚</div>
+      <div class="nut-val">350g</div>
+      <div class="nut-label">Karbohidrat</div>
+      <div class="nut-note">Tinggi di gym day</div>
+    </div>
+    <div class="nut-card">
+      <div class="nut-icon">🫒</div>
+      <div class="nut-val">80g</div>
+      <div class="nut-label">Lemak sehat</div>
+      <div class="nut-note">Omega-3 priority</div>
+    </div>
+  </div>
+
+  <div class="insight-box">
+    <div class="insight-label">🍽️ Template Makan Harian (China Context)</div>
+    <div class="insight-text">
+      <strong>Pagi:</strong> Telur 4 butir + nasi/oatmeal + susu protein<br>
+      <strong>Siang:</strong> Nasi + ayam/daging sapi + sayuran (kantin kampus bisa)<br>
+      <strong>Pre-workout:</strong> Pisang + protein shake 30g<br>
+      <strong>Malam:</strong> Nasi + protein (ikan/telur/tahu) + sayuran<br>
+      <strong>Sebelum tidur:</strong> Susu atau Greek yogurt (casein protein)
+    </div>
+  </div>
+
+  <div class="insight-box">
+    <div class="insight-label">⚡ Simple Tracking Rule</div>
+    <div class="insight-text">
+      Tidak perlu counting kalori detail. Cukup pastikan: <strong>setiap makan ada protein (telur/daging/ikan/tahu)</strong> dan <strong>minum protein shake 1–2x sehari</strong>. Berat badan naik 0.5–1 kg per bulan = lean bulk on track.
+    </div>
+  </div>
+
+  <div class="warning-box">
+    <strong>Target berat:</strong> Naik maksimal <strong>1 kg per bulan</strong>. Kalau naik lebih cepat → kurangi 200 kalori. BF harus tetap di bawah 15%.
+  </div>
+</div>
+
+<script>
+  function switchTab(name) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelector(`[onclick="switchTab('${name}')"]`).classList.add('active');
+    document.getElementById(`panel-${name}`).classList.add('active');
+  }
+</script>
+
+</body>
+</html>
